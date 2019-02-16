@@ -13,10 +13,6 @@ void CAK47::Spawn()
 	m_flAccuracy = 0.2f;
 	m_iShotsFired = 0;
 
-#ifdef REGAMEDLL_API
-	CSPlayerWeapon()->m_flBaseDamage = AK47_DAMAGE;
-#endif
-
 	// Get ready to fall down
 	FallInit();
 
@@ -124,19 +120,17 @@ void CAK47::AK47Fire(float flSpread, float flCycleTime, BOOL fUseAutoAim)
 	vecSrc = m_pPlayer->GetGunPosition();
 	vecAiming = gpGlobals->v_forward;
 
-#ifdef REGAMEDLL_API
-	float flBaseDamage = CSPlayerWeapon()->m_flBaseDamage;
-#else
-	float flBaseDamage = AK47_DAMAGE;
-#endif
 	vecDir = m_pPlayer->FireBullets3(vecSrc, vecAiming, flSpread, 8192, 2, BULLET_PLAYER_762MM,
-		flBaseDamage, AK47_RANGE_MODIFER, m_pPlayer->pev, false, m_pPlayer->random_seed);
+		AK47_DAMAGE, AK47_RANGE_MODIFER, m_pPlayer->pev, false, m_pPlayer->random_seed);
 
 #ifdef CLIENT_WEAPONS
 	flag = FEV_NOTHOST;
 #else
 	flag = 0;
 #endif
+
+	PLAYBACK_EVENT_FULL(flag, m_pPlayer->edict(), m_usFireAK47, 0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y,
+		int(m_pPlayer->pev->punchangle.x * 100), int(m_pPlayer->pev->punchangle.y * 100), FALSE, FALSE);
 
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
